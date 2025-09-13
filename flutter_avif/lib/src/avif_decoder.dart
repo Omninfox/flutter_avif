@@ -11,9 +11,20 @@ Future<List<AvifFrameInfo>> decodeAvif(Uint8List bytes) async {
   final List<AvifFrameInfo> frames = [];
   for (int i = 0; i < codec.frameCount; i += 1) {
     final frame = await codec.getNextFrame();
+
     frames.add(frame);
   }
 
   codec.dispose();
   return frames;
+}
+
+Future<Uint8List> decodeAvifData(Uint8List bytes) async {
+  final key = Random().nextInt(4294967296);
+  final codec = MultiFrameAvifCodec(key: key, avifBytes: bytes);
+  await codec.ready();
+
+  Uint8List bytesData = await codec.getNextFrameData();
+  codec.dispose();
+  return bytesData;
 }
