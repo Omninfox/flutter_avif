@@ -964,10 +964,14 @@ class MultiFrameAvifCodec implements AvifCodec {
     return completer.future;
   }
 
-  Future<Uint8List> getNextFrameData() async {
-    final Completer<Uint8List> completer = Completer<Uint8List>.sync();
-    final String? error = _getNextFrameData((Uint8List data, int durationMilliseconds) {
-      completer.complete(data);
+  Future<Map<String, dynamic>> getNextFrameData() async {
+    final Completer<Map<String, dynamic>> completer = Completer<Map<String, dynamic>>.sync();
+    final String? error = _getNextFrameData((Uint8List data, int width, int height) {
+      completer.complete({
+        "data": data,
+        "width": width,
+        "height": height,
+      });
     });
     if (error != null) {
       throw Exception(error);
@@ -975,15 +979,15 @@ class MultiFrameAvifCodec implements AvifCodec {
     return completer.future;
   }
 
-  String? _getNextFrameData(void Function(Uint8List, int) callback) {
+  String? _getNextFrameData(void Function(Uint8List, int, int) callback) {
     try {
       final avifFfi = avif_platform.FlutterAvifPlatform.api;
       avifFfi.getNextFrame(key: _key).then((frame) {
-        callback(Uint8List.fromList(frame.data), (frame.duration * 1000).round());
+        callback(Uint8List.fromList(frame.data), frame.width, frame.height);
       });
       return null;
     } catch (e) {
-      callback(Uint8List.fromList([]), 0);
+      callback(Uint8List.fromList([]), 0, 0);
       return e.toString();
     }
   }

@@ -19,12 +19,12 @@ Future<List<AvifFrameInfo>> decodeAvif(Uint8List bytes) async {
   return frames;
 }
 
-Future<Uint8List> decodeAvifData(Uint8List bytes) async {
+Future<Map<String, dynamic>> decodeAvifData(Uint8List bytes) async {
   final key = Random().nextInt(4294967296);
   final codec = MultiFrameAvifCodec(key: key, avifBytes: bytes);
   await codec.ready();
 
-  Uint8List bytesData = await codec.getNextFrameData();
+  Map<String, dynamic> bytesData = await codec.getNextFrameData();
   codec.dispose();
   return bytesData;
 }
